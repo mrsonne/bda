@@ -1,6 +1,8 @@
 from scipy.integrate import simps
 import matplotlib.pyplot as plt
 import sec_3_7 as sec37
+import matplotlib
+matplotlib.use('TkAgg')
 
 def run_sec37():
     data, feature_names = sec37.get_data()

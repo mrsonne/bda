@@ -2,8 +2,6 @@
 # Example 3.7 
 
 import itertools
-import matplotlib
-matplotlib.use('TkAgg')
 import pandas as pd
 import numpy as np
 from scipy.special import expit, logit
