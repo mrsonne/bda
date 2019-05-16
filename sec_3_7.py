@@ -10,7 +10,42 @@ plt.style.use('seaborn-white')
 import seaborn as sns
 from sklearn.linear_model import LogisticRegression
 import statsmodels.api as sm
+from matplotlib.patches import Ellipse
+
 sns.set(color_codes=True)
+
+def plot_cov_ellipse(cov, pos, nstd=2, ax=None, **kwargs):
+    def eigsorted(cov):
+        vals, vecs = np.linalg.eigh(cov)
+#        vals, vecs = np.linalg.eig(cov)
+        order = vals.argsort()[::-1]
+        return vals[order], vecs[:,order]
+
+    ax = ax or plt.gca()
+
+    vals, vecs = eigsorted(cov)
+    theta = np.degrees(np.arctan2(*vecs[:,0][::-1]))
+
+    # Width and height are "full" widths, not radius
+    width, height = 2 * nstd * np.sqrt(vals)
+    ellip = Ellipse(xy=pos, width=width, height=height, angle=theta, **kwargs)
+    ax.add_patch(ellip)
+    return ellip
+
+def normal_approximation(ab_vals, map_estimate):
+    mean = np.mean(ab_vals, axis=0)
+    cov = np.cov(ab_vals.T)
+    fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(6, 6))
+    ax.plot(ab_vals[:,0], ab_vals[:,1], color='k', marker='.', alpha=0.5, 
+            linewidth=0, label='Samples (true posterior)')
+    # python 2 compatibility
+    ax.plot(mean[0], mean[1], 'o', label='Mean: {}'.format(tuple(mean)), zorder=999, color='magenta')
+    ax.plot(map_estimate[0], map_estimate[1], 'o', label='MAP: {}'.format(map_estimate), zorder=999, color='blue')
+    plot_cov_ellipse(cov, mean, ax=ax, nstd=2, label="2xCOV", fill=None, edgecolor="magenta", linewidth=1, zorder=999)
+    ax.set_ylim((-10, 40))
+    ax.set_xlim((-5, 10))
+    ax.legend()
+    plt.show()
 
 
 def proba(x, a, b):
