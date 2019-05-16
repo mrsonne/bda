@@ -57,10 +57,14 @@ def sample_posterior(x, y, pxy, nsamples=100):
     return xypairs[np.random.choice(np.arange(len(xypairs)), nsamples, replace=False, p=np.ravel(pxy, order='F'))]
 
 
-def plot_posterior_density(X, Y, Z, map_estimate=None, ax=None):
+def plot_posterior_density(X, Y, Z, map_estimate=None, ax=None, xysamples=None):
     ax = ax or plt.gca()
     ax.contour(X, Y, Z, 20, cmap='RdGy')
-    ax.plot(map_estimate[0], map_estimate[1], 'ro', label='MAP')
+    ax.plot(map_estimate[0], map_estimate[1], 'ro', label='MAP', zorder=9999)
+
+    if xysamples is not None:
+        ax.plot(xysamples[:,0], xysamples[:,1], 'k+', markersize=4, label='Samples from posterior')
+
     ax.set_xlabel("Intecept")
     ax.set_ylabel("Coefficient")
     ax.legend()
