@@ -1,8 +1,9 @@
 from scipy.integrate import simps
-import matplotlib.pyplot as plt
-import sec_3_7 as sec37
+import numpy as np
 import matplotlib
 matplotlib.use('TkAgg')
+import matplotlib.pyplot as plt
+import sec_3_7 as sec37
 
 def run_sec37():
     data, feature_names = sec37.get_data()
@@ -34,13 +35,14 @@ def run_sec37():
     map_estimate = av.ravel()[idxs_map], bv.ravel()[idxs_map]
     print('MAP estimate', map_estimate)
 
-    # Plot the density with MAP
-    sec37.plot_posterior_density(av, bv, pdf_grid, map_estimate)
-
     # Sample from posterior distribution
     prob_grid = sec37.make_prob_grid(density)
     print('Total posterior probability (validation):', prob_grid.sum())
     ab_vals = sec37.sample_posterior(a_vals, b_vals, prob_grid, nsamples=1000)
+
+    # Plot the density with MAP
+    sec37.plot_posterior_density(av, bv, pdf_grid, map_estimate, xysamples=ab_vals)
+
     sec37.plot_posterior_samples(ab_vals[:,0], ab_vals[:,1])
 
     # Only use parameters where b>0 
@@ -56,6 +58,7 @@ def run_sec37():
                         xlabel=feature_names[0], ylabel='p(dead)',
                         ax=axs[0])
 
+    sec37.normal_approximation(ab_vals, map_estimate)
 
 def run_chaper3():
     run_sec37()
