@@ -236,8 +236,8 @@ def get_data():
 	return data, feature_names
 
 
-def flatten_data(data):
-	"""flatten data back to individuals. y=0: alive, y=1: dead """
+def inflate_data(data):
+	"""inflate data back to individuals. y=0: alive, y=1: dead """
 	y_dead, y_alive = 1, 0
 	X = np.atleast_2d([_x for idx, _x in enumerate(data['Dose log g/ml']) for _ in range(data['Number of animals'][idx])]).T
 	y = [y_alive if _y <= idx_n else y_dead for idx, _y in enumerate(data['Number of deaths']) for idx_n in range(data['Number of animals'][idx])]

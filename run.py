@@ -7,7 +7,7 @@ import sec_3_7 as sec37
 
 def run_sec37():
     data, feature_names = sec37.get_data()
-    X, y = sec37.flatten_data(data)
+    X, y = sec37.inflate_data(data)
     grouped = sec37.group_data(X, y)
     print(grouped)
 
