@@ -32,16 +32,25 @@ def plot_cov_ellipse(cov, pos, nstd=2, ax=None, **kwargs):
     ax.add_patch(ellip)
     return ellip
 
-def normal_approximation(ab_vals, map_estimate):
-    mean = np.mean(ab_vals, axis=0)
-    cov = np.cov(ab_vals.T)
+
+def normal_approximation(ab_vals, map_estimate, params_mle, cov_mle):
+    mean_data = np.mean(ab_vals, axis=0)
+    cov_data = np.cov(ab_vals.T)
     fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(6, 6))
     ax.plot(ab_vals[:,0], ab_vals[:,1], color='k', marker='.', alpha=0.5, 
             linewidth=0, label='Samples (true posterior)')
     # python 2 compatibility
-    ax.plot(mean[0], mean[1], 'o', label='Mean: {}'.format(tuple(mean)), zorder=999, color='magenta')
-    ax.plot(map_estimate[0], map_estimate[1], 'o', label='MAP: {}'.format(map_estimate), zorder=999, color='blue')
-    plot_cov_ellipse(cov, mean, ax=ax, nstd=2, label="2xCOV", fill=None, edgecolor="magenta", linewidth=1, zorder=999)
+    ax.plot(mean_data[0], mean_data[1], 'o',
+            label='Data mean: {}'.format(np.array2string(mean_data, precision=2)), 
+            zorder=999, color='magenta')
+    ax.plot(params_mle[1], params_mle[0], 'o',
+            label='MLE: {}'.format(np.array2string(params_mle[::-1], precision=2)),
+            zorder=999, color='green')
+    ax.plot(map_estimate[0], map_estimate[1], 'o',
+            label='MAP: {}'.format(np.array2string(np.array(map_estimate), precision=2)),
+            zorder=999, color='blue')
+    plot_cov_ellipse(cov_data, mean_data, ax=ax, nstd=2, label="Data COV  @ 2x std", fill=None, edgecolor="magenta", linewidth=1, zorder=999)
+    plot_cov_ellipse(np.rot90(cov_mle, k=2), params_mle[::-1], ax=ax, nstd=2, label="MLE COV @ 2x std", fill=None, edgecolor="green", linewidth=1, zorder=999)
     ax.set_ylim((-10, 40))
     ax.set_xlim((-5, 10))
     ax.legend()
@@ -189,9 +198,34 @@ def logit_statsmodels(X, y):
     # include intecepts
     model = sm.Logit(y, sm.add_constant(X, prepend=False)) 
     result = model.fit()
+    print('params', result.params)
+    print('cov', result.cov_params())
+    print('SE', np.sqrt(np.diag(result.cov_params())))
     print(result.summary())
-    print(result.params)
-    return result.params
+    return result.params, result.cov_params()
+
+
+def calc_cov(X, a, b):
+    """ 
+    Calculate the parameter covariance from the Hessian 
+    For the Hessian see e.g.
+    https://stats.stackexchange.com/questions/68391/hessian-of-logistic-function
+
+    https://www.quora.com/How-can-I-show-that-the-Hessian-for-log-likelihood-for-logistic-regression-is-negative-definite
+
+    https://www.youtube.com/watch?v=hWLdFMccpTY
+    https://www.youtube.com/watch?v=jUwjbiBUR-k
+
+    Hessian as covariance 
+    https://www.cse.wustl.edu/~garnett/cse515t/spring_2019/files/lecture_notes/8.pdf
+    Gelman
+    """
+    p = proba(X, a, b)[:,0]
+    D = np.diag(p*(1 - p))
+    X = sm.add_constant(X, prepend=False).T
+    H = np.matmul(X, np.matmul(D, X.T))
+    print('Hessian', H)
+    print('COV', np.linalg.inv(H))
 
 
 def get_data():
