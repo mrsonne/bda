@@ -54,7 +54,7 @@ def make_prob_grid(density):
 def sample_posterior(x, y, pxy, nsamples=100):
     xypairs = np.array(list(itertools.product(x, y)))
     #randomly sample indices since np cannot sample an array of tuples
-    return xypairs[np.random.choice(np.arange(len(xypairs)), nsamples, replace=False, p=np.ravel(pxy))]
+    return xypairs[np.random.choice(np.arange(len(xypairs)), nsamples, replace=False, p=np.ravel(pxy, order='F'))]
 
 
 def plot_posterior_density(X, Y, Z, map_estimate=None, ax=None):
