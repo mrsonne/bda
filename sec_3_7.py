@@ -63,7 +63,7 @@ def plot_posterior_density(X, Y, Z, map_estimate=None, ax=None, xysamples=None):
     ax.plot(map_estimate[0], map_estimate[1], 'ro', label='MAP', zorder=9999)
 
     if xysamples is not None:
-        ax.plot(xysamples[:,0], xysamples[:,1], 'k+', markersize=4, label='Samples from posterior')
+        ax.plot(xysamples[:,0], xysamples[:,1], 'k+', markersize=10, label='Samples from posterior')
 
     ax.set_xlabel("Intecept")
     ax.set_ylabel("Coefficient")
