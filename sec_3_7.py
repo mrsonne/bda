@@ -293,8 +293,10 @@ def mcmc(xs, ns, nys, pars0, nsamples=1000, step_scale=1.7, nburn=None):
                 acc += 1
                 pars = pars_trial
             trace[isample,:] = pars
-        print('Acceptance ratio', float(acc)/nsamples)
-        ax.plot(trace[nburn:,0], trace[nburn:,1], '-o', alpha=0.25)
+        print('Acceptance ratio {}'.format(float(acc)/nsamples))
+        ax.plot(trace[nburn:,0], trace[nburn:,1], '-o',
+                alpha=0.25, label='Chain {}'.format(ichain+1))
     ax.set_ylim((-10, 40))
     ax.set_xlim((-5, 10))
+    ax.legend()
     plt.show()
