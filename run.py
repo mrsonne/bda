@@ -19,7 +19,7 @@ def run_sec37():
     # MLE logistic regression using statsmodels
     params, cov = sec37.logit_statsmodels(X, y)
 
-    calc_cov(X, *params[::-1])
+    sec37.calc_cov(X, *params[::-1])
 
     # Calculate posterior density on a grid
     av, bv, density, a_vals, b_vals, delta_a, delta_b = sec37.posterior_density_grid(data['Dose log g/ml'],
@@ -61,6 +61,13 @@ def run_sec37():
                         ax=axs[0])
 
     sec37.normal_approximation(ab_vals, map_estimate, params, cov)
+
+    nchains = 3
+    pars0 = np.random.multivariate_normal(params[::-1], np.rot90(cov, k=2), nchains)
+    sec37.mcmc(data['Dose log g/ml'],
+               data['Number of animals'],
+               data['Number of deaths'], 
+               pars0, nsamples=10000)
 
 def run_chaper3():
     run_sec37()

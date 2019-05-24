@@ -68,6 +68,11 @@ def likelihood(x, n, ny, a, b):
     return _expit**ny * (1 - _expit)**(n-ny)
 
 
+def log_likelihood(xs, ns, nys, a, b):
+    """ Log-Likelihood for the data """
+    return sum(np.log([likelihood(x, n, ny, a, b) for x, n, ny in zip(xs, ns, nys)]))
+
+
 def pdf_joint_posterior(xs, ns, nys, a, b):
     """Joint posterior distriution"""
     product = 1.
@@ -263,3 +268,31 @@ def sample_model(ab_vals):
     for idx, (a, b) in enumerate(ab_vals):
         p_dead[:, idx] = proba(dose, a, b)
     return dose, p_dead
+
+
+def mcmc(xs, ns, nys, pars0, nsamples=1000, step_scale=1.7, nburn=None):
+    """ Verbose and simple MCMC sample using flat improper priors """
+    nburn = nburn or int(0.25*nsamples)
+    nchains = len(pars0)
+    npar = len(pars0[0])
+    fig, axs = plt.subplots(1, 1, figsize=(5, 5))
+    for ichain in range(nchains):
+        acc = 0
+        trace = np.empty((nsamples, npar), float)
+        pars = pars0[ichain]
+        print('Initial parameters {} chain {}'.format(pars, ichain + 1))
+        for isample in range(nsamples):
+            # step. here uniform for simplicity
+            dx = np.random.uniform(-1, 1, size=npar)*step_scale
+            # new trial position
+            pars_trial = pars + dx 
+            # Metropolis ratio (here its just the likelihood ratio due to flat improper priors)
+            mr = log_likelihood(xs, ns, nys, *pars_trial) - log_likelihood(xs, ns, nys, *pars) 
+            # reject/accept trial
+            if min(np.exp(mr), 1) > np.random.uniform():
+                acc += 1
+                pars = pars_trial
+            trace[isample,:] = pars
+        print('Acceptance ratio', acc/nsamples)
+        axs.plot(trace[nburn:,0], trace[nburn:,1], '-o', alpha=0.25)
+    plt.show()
