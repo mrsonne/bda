@@ -270,17 +270,17 @@ def sample_model(ab_vals):
     return dose, p_dead
 
 
-def mcmc(xs, ns, nys, pars0, nsamples=1000, step_scale=1.7, nburn=None):
+def mcmc(xs, ns, nys, pars0, nsamples=1000, step_scale=None, nburn=None):
     """ Verbose and simple MCMC sample using flat improper priors """
     nburn = nburn or int(0.25*nsamples)
     nchains = len(pars0)
     npar = len(pars0[0])
+    step_scale = step_scale or 2.4/np.sqrt(npar)
     fig, ax = plt.subplots(1, 1, figsize=(6, 6))
     for ichain in range(nchains):
         acc = 0
         trace = np.empty((nsamples, npar), float)
         pars = pars0[ichain]
-        print('Initial parameters {} chain {}'.format(pars, ichain + 1))
         for isample in range(nsamples):
             # step. here uniform for simplicity
             dx = np.random.uniform(-1, 1, size=npar)*step_scale
@@ -293,7 +293,7 @@ def mcmc(xs, ns, nys, pars0, nsamples=1000, step_scale=1.7, nburn=None):
                 acc += 1
                 pars = pars_trial
             trace[isample,:] = pars
-        print('Acceptance ratio {}'.format(float(acc)/nsamples))
+        print('Chain {}. Initial parameters {}. Acceptance ratio {}'.format(ichain + 1, pars, float(acc)/nsamples))
         ax.plot(trace[nburn:,0], trace[nburn:,1], '-o',
                 alpha=0.25, label='Chain {}'.format(ichain+1))
     ax.set_ylim((-10, 40))
