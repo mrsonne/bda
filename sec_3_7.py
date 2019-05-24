@@ -275,7 +275,7 @@ def mcmc(xs, ns, nys, pars0, nsamples=1000, step_scale=1.7, nburn=None):
     nburn = nburn or int(0.25*nsamples)
     nchains = len(pars0)
     npar = len(pars0[0])
-    fig, axs = plt.subplots(1, 1, figsize=(5, 5))
+    fig, ax = plt.subplots(1, 1, figsize=(6, 6))
     for ichain in range(nchains):
         acc = 0
         trace = np.empty((nsamples, npar), float)
@@ -293,6 +293,8 @@ def mcmc(xs, ns, nys, pars0, nsamples=1000, step_scale=1.7, nburn=None):
                 acc += 1
                 pars = pars_trial
             trace[isample,:] = pars
-        print('Acceptance ratio', acc/nsamples)
-        axs.plot(trace[nburn:,0], trace[nburn:,1], '-o', alpha=0.25)
+        print('Acceptance ratio', float(acc)/nsamples)
+        ax.plot(trace[nburn:,0], trace[nburn:,1], '-o', alpha=0.25)
+    ax.set_ylim((-10, 40))
+    ax.set_xlim((-5, 10))
     plt.show()
