@@ -67,7 +67,7 @@ def run_sec37():
     sec37.mcmc(data['Dose log g/ml'],
                data['Number of animals'],
                data['Number of deaths'], 
-               pars0, nsamples=10000)
+               pars0, nsamples=25000)
 
 def run_chaper3():
     run_sec37()
