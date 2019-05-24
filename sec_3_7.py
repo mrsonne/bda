@@ -75,10 +75,7 @@ def log_likelihood(xs, ns, nys, a, b):
 
 def pdf_joint_posterior(xs, ns, nys, a, b):
     """Joint posterior distriution"""
-    product = 1.
-    for x, n, ny in zip(xs, ns, nys):
-        product *= likelihood(x, n, ny, a, b)
-    return product
+    return np.product([likelihood(x, n, ny, a, b) for x, n, ny in zip(xs, ns, nys)])
 
 vfun = np.vectorize(pdf_joint_posterior, excluded=[0, 1, 2])
 
